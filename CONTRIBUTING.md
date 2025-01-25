@@ -73,6 +73,7 @@ for file in $(find . -type f -not -path "*.git*"); do
       echo "### Checking file $file..."
       dash -n $file
       result=$(( result + $? ))
+      echo "Result: $result"
     fi
 done
 ```
@@ -88,10 +89,10 @@ done
   - `shellcheck -s sh -a -o all -Sstyle -Calways -x -e SC2310,SC2311,SC2312`
 - use `shfmt` to style the code using:
   - install from [HERE](https://github.com/mvdan/sh) using `go install mvdan.cc/sh/v3/cmd/shfmt@latest`
-  - `shfmt -d -s -ci -sr -kp`
+  - `shfmt shfmt -d -s -ci -sr -kp`
 - use `bashate` to check the code:
   - install using `pip3 install bashate`
-  - `bashate -i E002,E003,E010,E011 --max-line-length 12`
+  - `bashate -i E002,E003,E010,E011 --max-line-length 120`
 - use `markdownlint`
   - install using `npm -i -g markdownlint-cli`
   - run `markdownlint $(find . -name '*.md' | grep -vF './.git')`

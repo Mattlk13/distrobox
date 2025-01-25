@@ -12,6 +12,10 @@
 
 ---
 
+⚠️ **BE CAREFUL**:⚠️  THIS IS EXPERIMENTAL, JUST FOOD FOR THOUGHTS
+
+⚠️ **BE CAREFUL**:⚠️  BUG REPORTS FOR THIS TYPE OF EXPERIMENTS WILL BE TREATED WITH VERY LOW PRIORITY
+
 # Using a stable-release distribution
 
 Lots of people prefer to run a distribution following a stable-LTS release cycle
@@ -27,7 +31,7 @@ For this experiment we'll use Fedora Rawhide as our distrobox, and Centos 8 Stre
 as our host, so:
 
 ```shell
-distrobox create --name fedora-rawhide --image registry.fedoraproject.org/fedora:rawhide
+distrobox create --name fedora-rawhide --init --additional-packages "systemd" --image registry.fedoraproject.org/fedora:rawhide
 ```
 
 and
@@ -38,18 +42,7 @@ distrobox enter fedora-rawhide
 
 ## Running Latest GNOME
 
-First we need to change a couple of bits in the distrobox container to make host's
-systemd session accessible from within the container:
-
-```shell
-~$ distrobox enter fedora-rawhide
-user@fedora-rawhide:~$ sudo umount /run/systemd/system
-user@fedora-rawhide:~$ sudo rmdir /run/systemd/system
-user@fedora-rawhide:~$ sudo ln -s /run/host/run/systemd/system /run/systemd
-user@fedora-rawhide:~$ sudo ln -s /run/host/run/dbus/system_bus_socket /run/dbus/
-```
-
-Then we can proceed to install GNOME in the container:
+First we need to install GNOME in the container:
 
 ```shell
 user@fedora-rawhide:~$ sudo dnf groupinstall GNOME
@@ -70,7 +63,7 @@ container so we need to change the ownership from `root` to `$USER` each time.
 Let's add:
 
 ```shell
-chown -R $USER:$USER /tmp/.X11-unix
+chown -f -R $USER:$USER /tmp/.X11-unix
 ```
 
 to `/etc/profile.d/fix_tmp.sh` file.
@@ -78,44 +71,34 @@ to `/etc/profile.d/fix_tmp.sh` file.
 This is needed for the XWayland session to work properly which right now is
 necessary to run gnome-shell even on wayland.
 
-Then we need to add a desktop file for the session on the host's file system,
-so that it appears on your login manager (Be it SSDM or GDM)
+Then we need to add a desktop file for the session on the **host's** file system,
+so that it appears on your login manager (Be it SDDM or GDM)
 
 ```shell
 [Desktop Entry]
 Name=GNOME on Wayland (fedora-rawhide distrobox)
 Comment=This session logs you into GNOME
-Exec=/usr/local/bin/distrobox-enter -n fedora-rawhide -- /usr/bin/gnome-session --builtin
+Exec=/usr/local/bin/distrobox-enter -n fedora-rawhide -- /usr/bin/gnome-session
 Type=Application
 DesktopNames=GNOME
 X-GDM-SessionRegisters=true
 ```
 
 This file should be placed under `/usr/local/share/wayland-sessions/distrobox-gnome.desktop`
+(If it doesn't show up, you can place it under `/usr/share/xsessions/distrobox-gnome.desktop`)
 
 Let's log out and voilá!
 
 ![image](https://user-images.githubusercontent.com/598882/148703229-82905d23-f3d0-41bc-a048-d12cdf8066d0.png)
-![Screenshot from 2021-12-25 19-56-52](https://user-images.githubusercontent.com/598882/147391814-cb49e7b8-64bc-4975-a8d1-93f6fb23f28b.png)
-![Screenshot from 2021-12-25 20-03-16](https://user-images.githubusercontent.com/598882/147391867-ca29576b-8fb9-448c-a181-579482fb448d.png)
+![Screenshot from 2024-02-21 23-32-13](https://github.com/89luca89/distrobox/assets/598882/9b981f40-fdbe-4ed4-82cc-1e96b6e945e5)
+![Screenshot from 2024-02-21 23-32-03](https://github.com/89luca89/distrobox/assets/598882/d2200195-74c6-4a1c-8ddb-a9fabe775999)
 
 We now are in a GNOME 42 session inside Fedora Rawhide while our main OS remains
 Centos.
 
 ## Running Latest Plasma
 
-We can do the same with Plasma also, let's first set up the host's systemd session
-sharing with the container:
-
-```shell
-~$ distrobox enter fedora-rawhide
-user@fedora-rawhide:~$ sudo umount /run/systemd/system
-user@fedora-rawhide:~$ sudo rmdir /run/systemd/system
-user@fedora-rawhide:~$ sudo ln -s /run/host/run/systemd/system /run/systemd
-user@fedora-rawhide:~$ sudo ln -s /run/host/run/dbus/system_bus_socket /run/dbus/
-```
-
-Then we can proceed to install Plasma in the container:
+We first need to install Plasma in the container:
 
 ```shell
 user@fedora-rawhide:~$ sudo dnf groupinstall KDE
@@ -123,7 +106,7 @@ user@fedora-rawhide:~$ sudo dnf groupinstall KDE
 
 ### Generate session file - Plasma
 
-We need to add a desktop file for the session on the host's file system,
+We need to add a desktop file for the session on the **host's** file system,
 so that it appears on your login manager (Be it SSDM or GDM)
 
 ```shell
@@ -135,6 +118,7 @@ X-KDE-PluginInfo-Version=5.23.3
 ```
 
 This file should be placed under `/usr/local/share/wayland-sessions/distrobox-plasma.desktop`
+(If it doesn't show up, you can place it under `/usr/share/xsessions/distrobox-plasma.desktop`)
 
 ### Add a couple of fixes
 
@@ -148,7 +132,7 @@ container so we need to change the ownership from `root` to `$USER` each time.
 Let's add:
 
 ```shell
-chown -R $USER:$USER /tmp/.X11-unix
+chown -f -R $USER:$USER /tmp/.X11-unix
 ```
 
 to `/etc/profile.d/fix_tmp.sh` file.

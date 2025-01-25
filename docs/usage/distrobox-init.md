@@ -27,8 +27,11 @@ integration.
 	--group/-g:		gid of the user
 	--home/-d:		path/to/home of the user
 	--help/-h:		show this message
+	--additional-packages:	packages to install in addition
 	--init/-I:		whether to use or not init
 	--pre-init-hooks:	commands to execute prior to init
+	--nvidia:		try to integrate host's nVidia drivers in the guest
+	--upgrade/-U:		run init in upgrade mode
 	--verbose/-v:		show more verbosity
 	--version/-V:		show version
 	--:			end arguments execute the rest as command to execute during init
@@ -36,3 +39,4 @@ integration.
 # EXAMPLES
 
 	distrobox-init --name test-user --user 1000 --group 1000 --home /home/test-user
+	distrobox-init --upgrade
