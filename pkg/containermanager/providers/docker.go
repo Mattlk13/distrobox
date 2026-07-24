@@ -72,11 +72,6 @@ type inspectOutput struct {
 	} `json:"Config"`
 }
 
-type InspectImageOutput struct {
-	ID           string `json:"ID"`
-	Architecture string `json:"Architecture"`
-}
-
 func (d *Docker) ListContainers(ctx context.Context) ([]containermanager.Container, error) {
 	args := []string{"ps", "-a", "--no-trunc", "--format", "{{json .}}"}
 	out, err := d.run(ctx, args, runOptions{})
