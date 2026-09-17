@@ -2837,7 +2837,14 @@ if [ "${init}" -eq 0 ]; then
 							file_watch_src="/run/host${file_watch_src}"
 						fi
 					fi
-					if ! diff "${file_watch}" "${file_watch_src}" > /dev/null; then
+					# findmnt marks a bind whose host file was replaced as "//deleted";
+					# diff alone misses it when the new content is equal.
+					if [ ! -e "${file_watch_src}" ] ||
+						findmnt -no SOURCE "${file_watch_src}" 2> /dev/null | grep -q '//deleted'; then
+						continue
+					fi
+					if echo "${mount_source}" | grep -q '//deleted' ||
+						! diff "${file_watch}" "${file_watch_src}" > /dev/null; then
 						# We only do this, if the file is actually different
 						umount "${file_watch}" &&
 							mount_bind "${file_watch_src}" "${file_watch}"
